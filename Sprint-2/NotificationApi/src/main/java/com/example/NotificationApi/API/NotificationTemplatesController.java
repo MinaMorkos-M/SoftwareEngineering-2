@@ -1,12 +1,12 @@
 package com.example.NotificationApi.API;
 
 import com.example.NotificationApi.model.NotificationTemplate;
+import com.example.NotificationApi.services.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import com.example.NotificationApi.services.NotificationService;
-import org.springframework.web.servlet.theme.CookieThemeResolver;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,16 +17,21 @@ public class NotificationTemplatesController {
     private final NotificationService notificationService;
 
     @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    @Autowired
     public NotificationTemplatesController(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
     @PostMapping //to be used as a post method
     public void addNotificationTemplate(@Validated @NonNull @RequestBody NotificationTemplate notificationTemplate){ //convert json into notificationTemplate
+        //jdbcTemplate.queryForList("INSERT INTO templates(ID , subject , content , language) VALUES (?,?,?,?)");
         notificationService.addNotificationTemplate(notificationTemplate);
     }
 
     @GetMapping
-    public List<NotificationTemplate> getNotificationTemplates(){
+    public /*String*/ List<NotificationTemplate> getNotificationTemplates(){
+        //return jdbcTemplate.queryForList("SELECT * FROM  mail").toString();
         return notificationService.getNotificationTemplates();
     }
 

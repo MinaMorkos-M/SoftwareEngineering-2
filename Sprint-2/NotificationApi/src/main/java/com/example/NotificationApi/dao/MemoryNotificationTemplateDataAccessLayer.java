@@ -1,6 +1,8 @@
 package com.example.NotificationApi.dao;
 
 import com.example.NotificationApi.model.NotificationTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -13,9 +15,10 @@ public class MemoryNotificationTemplateDataAccessLayer implements NotificationDa
     private static List<NotificationTemplate> allTemplates = new ArrayList<>();
 
 
+
     @Override
     public int insertNotificationTemplate(UUID ID, NotificationTemplate notificationTemplate) {
-        allTemplates.add(new NotificationTemplate(ID , notificationTemplate.getSubject() , notificationTemplate.getContent() , notificationTemplate.getLanguage()));
+        allTemplates.add(new NotificationTemplate(ID , notificationTemplate.getSubject() , notificationTemplate.getContent() , notificationTemplate.getLanguage() , notificationTemplate.getNotificationType()));
         return 1;
     }
 
@@ -44,7 +47,7 @@ public class MemoryNotificationTemplateDataAccessLayer implements NotificationDa
         return selectNotification(ID).map(notificationTemplate1 -> {
             int indexToDelete = allTemplates.indexOf(notificationTemplate1);
             if(indexToDelete>=0){
-                allTemplates.set(indexToDelete , new NotificationTemplate(ID , notificationTemplate.getSubject() , notificationTemplate.getContent() , notificationTemplate.getLanguage()));
+                allTemplates.set(indexToDelete , new NotificationTemplate(ID , notificationTemplate.getSubject() , notificationTemplate.getContent() , notificationTemplate.getLanguage() , notificationTemplate.getNotificationType()));
                 return 1;
             }
             return 0;
