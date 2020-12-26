@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class NotificationService {
@@ -17,12 +19,24 @@ public class NotificationService {
         this.notificationDao = notificationDao;
     }
     public int addNotificationTemplate(NotificationTemplate notificationTemplate){
-        //UUID id = UUID.randomUUID();
+
         return notificationDao.insertNotificationTemplate(notificationTemplate);
     }
 
     public List<NotificationTemplate> getNotificationTemplates(){
         return notificationDao.selectNotificationTemplates();
+    }
+
+    public Optional<NotificationTemplate> getNotificationTemplate(UUID ID){
+        return notificationDao.selectNotification(ID);
+    }
+
+    public int deleteNotificationTemplate(UUID ID){
+        return notificationDao.deleteNotificationTemplate(ID);
+    }
+
+    public int updateNotificationTemplate(UUID ID , NotificationTemplate notificationTemplate){
+        return notificationDao.updateNotificationTemplate(ID , notificationTemplate);
     }
 
 }

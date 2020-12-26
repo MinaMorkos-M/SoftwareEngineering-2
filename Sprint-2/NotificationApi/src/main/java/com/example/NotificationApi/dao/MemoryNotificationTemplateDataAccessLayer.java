@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository("notificationDAO") //ths class is saved as a repo.
@@ -21,6 +22,33 @@ public class MemoryNotificationTemplateDataAccessLayer implements NotificationDa
     @Override
     public List<NotificationTemplate> selectNotificationTemplates() {
         return allTemplates;
+    }
+
+    @Override
+    public Optional<NotificationTemplate> selectNotification(UUID ID) { //search
+        return allTemplates.stream().filter(notificationTemplate -> notificationTemplate.getID().equals(ID)).findFirst();
+    }
+
+    @Override
+    public int deleteNotificationTemplate(UUID ID) {
+        Optional<NotificationTemplate> notificationTemplate = selectNotification(ID);
+        if(notificationTemplate.isPresent()){
+            allTemplates.remove(notificationTemplate.get());
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public int updateNotificationTemplate(UUID ID, NotificationTemplate notificationTemplate) {
+        return selectNotification(ID).map(notificationTemplate1 -> {
+            int indexToDelete = allTemplates.indexOf(notificationTemplate1);
+            if(indexToDelete>=0){
+                allTemplates.set(indexToDelete , new NotificationTemplate(ID , notificationTemplate.getSubject() , notificationTemplate.getContent() , notificationTemplate.getLanguage()));
+                return 1;
+            }
+            return 0;
+        } ).orElse(0);
     }
 
 
