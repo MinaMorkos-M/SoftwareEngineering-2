@@ -8,6 +8,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.*;
 import java.util.UUID;
 
 import static com.example.NotificationApi.model.NotificationType.MAIL;
@@ -57,14 +58,48 @@ public class NotificationTemplatesController {
     }
 
     @DeleteMapping(path = "{ID}")
-    public void deleteNotificationTemplate(@PathVariable("ID") UUID ID){
+    public void deleteNotificationTemplate(@PathVariable("ID") UUID ID) throws ClassNotFoundException, SQLException {
         //notificationService.deleteNotificationTemplate(ID);
-        String query = "DROP * FROM templates WHERE id='"+ID+"'";
-        jdbcTemplate.queryForList(query);
+        //String query = "DROP * FROM templates WHERE id='"+ID+"'";
+        //jdbcTemplate.queryForList(query);
+        Class.forName("com.mysql.jdbc.Driver");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/notifications", "root", "root");
+        Statement s = connection.createStatement();
+        ResultSet r = s.executeQuery("SELECT * FROM  sms");
+        PreparedStatement st =connection.prepareStatement("DELETE FROM templates WHERE id =?");
+        st.setString(1, String.valueOf(ID));
+        st.executeUpdate();
     }
 
     @PutMapping(path = "{ID}")
     public void updateNotificationTemplate(@PathVariable("ID") UUID ID ,@Validated @NonNull @RequestBody NotificationTemplate notificationTemplate){
         notificationService.updateNotificationTemplate(ID , notificationTemplate);
     }
+
+    @DeleteMapping
+    public String dequeueNotifications() throws SQLException, ClassNotFoundException {
+        int smsCounter=0 , mailCounter=0;
+        Class.forName("com.mysql.jdbc.Driver");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/notifications", "root", "root");
+        Statement s = connection.createStatement();
+        ResultSet r = s.executeQuery("SELECT * FROM  sms");
+        PreparedStatement st =connection.prepareStatement("DELETE FROM sms WHERE id =?");
+        while(r.next()){
+            String ID = r.getString("id");
+            st.setString(1,ID);
+            st.executeUpdate();
+            smsCounter++;
+        }
+        r = s.executeQuery("SELECT * FROM  mail");
+        st =connection.prepareStatement("DELETE FROM mail WHERE id =?");
+        while(r.next()){
+            String ID = r.getString("id");
+            st.setString(1,ID);
+            st.executeUpdate();
+            mailCounter++;
+        }
+        String statment = "number of sms messages sent is: "+smsCounter+"\n"+"number of mail message sent is: "+mailCounter;
+        return statment;
+    }
+
 }
